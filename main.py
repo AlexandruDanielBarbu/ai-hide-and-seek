@@ -93,4 +93,9 @@ grid.print()
 
 print(f"\n{hider.check_for_seeker(grid)}")
 
+
+# TODOs:
+
+# TODO boundry check the hider and seeker (make sure they don't jump the fence)
+# TODO I need a way to move both hider and seeker to coordinates [row][col] once every 1 second or so
 # TODO make the UI of my game
