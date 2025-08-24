@@ -39,9 +39,21 @@ seeker_path = [
     (4, 3),
     (4, 2)
 ]
-
 seeker_path_index = 0
 
+wall_list = [
+    (1, 6),
+    (1, 9), (2, 9), (3, 9),
+    (2, 4), (3, 3), (3, 4), (3, 5), (3, 6), (3, 7),
+    (4, 1),
+    (5, 4),
+    (5, 6), (6, 6), (7, 6), (8, 6),
+    (5, 9), (6, 8), (6, 9), (6, 10),
+    (6, 2), (7, 2), (7, 3), (8, 3), (8, 4),
+    (8, 8), (8, 9), (9, 8),
+    (10, 2),
+    (10, 6)
+]
 # Events
 SECOND = 1000
 MOVE_PLAYERS = pygame.USEREVENT + 1
@@ -58,6 +70,10 @@ class Grid():
     def __init__(self):
         self.grid = [['B' if i == 0 or j == 0 or i == GRID_SIZE - 1 or j == GRID_SIZE - 1 else ' ' for i in range(0,GRID_SIZE)] for j in range(0, GRID_SIZE)]
 
+        # Populate grid with walls
+        for (row, col) in wall_list:
+            self.grid[row][col] = 'W'
+
     def print(self):
         for row in self.grid:
             print(row)
@@ -68,14 +84,17 @@ class Grid():
     def draw_self(self, screen):
         for row in range(1, GRID_SIZE - 1):
             for col in range(1, GRID_SIZE - 1):
+                sprite_pos_x = col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING
+                sprite_pos_y = row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING
+
                 if self.grid[row][col] == 'H':
-                    screen.blit(hider.image, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING))
+                    screen.blit(hider.image, (sprite_pos_x, sprite_pos_y))
                 elif self.grid[row][col] == 'S':
-                    screen.blit(seeker.image, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING))
+                    screen.blit(seeker.image, (sprite_pos_x, sprite_pos_y))
                 elif self.grid[row][col] == 'W':
-                    continue
+                    screen.blit(crate, (sprite_pos_x, sprite_pos_y))
                 else:
-                    pygame.draw.rect(screen, DARK_GREEN, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, TILE_SIZE, TILE_SIZE))
+                    pygame.draw.rect(screen, DARK_GREEN, (col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, TILE_SIZE, TILE_SIZE))
 
 class Entity():
     def __init__(self, row, col, symbol):
@@ -107,8 +126,8 @@ class Entity():
 class Hider(Entity):
     def __init__(self, sprite_path):
         # Hider position
-        self.row = 3
-        self.col = 4
+        self.row = GRID_SIZE - 2
+        self.col = GRID_SIZE - 2
         self.symbol = 'H'
 
         self.image = pygame.image.load(sprite_path)
@@ -138,8 +157,8 @@ class Hider(Entity):
 
 class Seeker(Entity):
     def __init__(self, sprite_path):
-        self.row = GRID_SIZE - 2
-        self.col = GRID_SIZE - 2
+        self.row = 1
+        self.col = 1
         self.symbol = 'S'
 
         self.image = pygame.image.load(sprite_path)
@@ -160,6 +179,9 @@ grid.set_cell(seeker.row, seeker.col, seeker.symbol)
 background = pygame.image.load('assets/sprites/background.png')
 background = pygame.transform.scale(background, SCREEN_SIZE)
 
+crate = pygame.image.load('assets/sprites/wall.png')
+crate = pygame.transform.scale(crate, (TILE_SIZE, TILE_SIZE))
+
 while True:
     # Render background
     screen.blit(background, (0, 0))
@@ -178,13 +200,11 @@ while True:
                 print('reset')
                 # seeker_path_index = 0  # this one is for debug only
 
-            # For some reason i have to invert the coordinates, I don't know why
-            grid = seeker.move_to(seeker_path[seeker_path_index][1], seeker_path[seeker_path_index][0], grid)
+            grid = seeker.move_to(seeker_path[seeker_path_index][0], seeker_path[seeker_path_index][1], grid)
             seeker_path_index += 1
 
             # update screen
             grid.draw_self(screen)
-
             # check for end game condition
             if hider.check_for_seeker(grid) == True:
                 print('Game Over')
