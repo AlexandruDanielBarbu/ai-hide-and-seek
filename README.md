@@ -1,6 +1,9 @@
 ## Before developing
 
 > [!CAUTION]
+> Create a new branch just for you!!
+
+> [!CAUTION]
 > The code was developed on wsl 2, as a result I recommend running the code on a linux based system.
 
 ```bash
