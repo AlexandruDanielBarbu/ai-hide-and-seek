@@ -1,8 +1,32 @@
+# Imports
+import sys, pygame
+
+# Inits
+pygame.init()
+
+# Global variables
 GRID_SIZE = 11
+
+SCSREEN_WIDTH = 700
+SCSREEN_HEIGHT = 700
+SCREEN_SIZE = (SCSREEN_WIDTH, SCSREEN_HEIGHT)
+
+FPS_VALUE = 60
+
+# Initial setup
+screen = pygame.display.set_mode(SCREEN_SIZE)
+
+pygame.display.set_caption('Hide and seek')
+game_icon = pygame.image.load('assets/sprites/logo.png')
+pygame.display.set_icon(game_icon)
+
+fps = pygame.time.Clock()
+
+# Classes
 class Grid():
     def __init__(self):
         global GRID_SIZE
-        self.grid = [[' ' for i in range(0,GRID_SIZE)] for j in range(0, GRID_SIZE)]
+        self.grid = [['B' if i == 0 or j == 0 or i == GRID_SIZE - 1 or j == GRID_SIZE - 1 else ' ' for i in range(0,GRID_SIZE)] for j in range(0, GRID_SIZE)]
 
     def print(self):
         for row in self.grid:
@@ -18,8 +42,13 @@ class Entity():
         self.col = col
         self.symbol = symbol
 
-    # Entity move itself
+    # Entity moves itself
     def move_to(self, row, col, grid):
+        # wants to move out of bounds, we do not allow
+        if row < 1 or col < 1 or row > GRID_SIZE - 2 or col > GRID_SIZE - 2:
+            print("You cannot move outside the map")
+            return grid
+
         # empty previous
         grid.set_cell(self.row, self.col, ' ')
 
@@ -69,33 +98,31 @@ class Seeker(Entity):
         self.symbol = 'S'
 
     def brain():
-        # DFS/BFS periodically to seeker hinted position, meanwhile random just like Hider
+        # TODO DFS/BFS periodically to seeker hinted position, meanwhile random just like Hider
         pass
 
 grid = Grid()
 hider = Hider()
 seeker = Seeker()
 
-# Debuging
+# Place Hider and Seeker on the map
 grid.set_cell(hider.row, hider.col, hider.symbol)
 grid.set_cell(seeker.row, seeker.col, seeker.symbol)
 
-grid.print()
-grid = hider.move_to(2, 2, grid)
+background = pygame.image.load('assets/sprites/background.png')
+background = pygame.transform.scale(background, SCREEN_SIZE)
 
-print()
-grid.print()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            pygame.quit()
+            sys.exit()
 
-print(f"\n{hider.check_for_seeker(grid)}")
-
-grid = seeker.move_to(3, 3, grid)
-grid.print()
-
-print(f"\n{hider.check_for_seeker(grid)}")
-
+    screen.blit(background, (0, 0))
+    pygame.display.update()
+    fps.tick(FPS_VALUE)
 
 # TODOs:
 
-# TODO boundry check the hider and seeker (make sure they don't jump the fence)
 # TODO I need a way to move both hider and seeker to coordinates [row][col] once every 1 second or so
 # TODO make the UI of my game
