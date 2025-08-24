@@ -29,7 +29,6 @@ pygame.display.set_icon(game_icon)
 fps = pygame.time.Clock()
 
 seeker_path = [
-    (1, 1),
     (1, 2),
     (1, 3),
     (1, 4),
@@ -54,6 +53,7 @@ wall_list = [
     (10, 2),
     (10, 6)
 ]
+
 # Events
 SECOND = 1000
 MOVE_PLAYERS = pygame.USEREVENT + 1
@@ -110,6 +110,10 @@ class Entity():
             print("You cannot move outside the map")
             return grid
 
+        # Moving on a wall
+        elif grid.grid[row][col] == 'W':
+            print('I will allow you to move here for now')
+
         # empty previous
         grid.set_cell(self.row, self.col, ' ')
 
@@ -122,6 +126,21 @@ class Entity():
 
         # return new grid
         return grid
+
+    """
+    Randomly move Entity somewhere in the following square, if possible
+
+    [1][2][3]
+    [4][H][6]
+    [7][8][9]
+
+    Return: a new grid with the updated entity inside it
+    """
+    def basic_brain(self, grid):
+        new_row = self.row  # TODO schimba cu valoare random si verifica daca e valida celula, daca nu e alege alta si tot asa
+        new_col = self.col  # TODO schimba cu valoare random ... ca mai sus
+
+        return self.move_to(new_row, new_col, grid)
 
 class Hider(Entity):
     def __init__(self, sprite_path):
@@ -147,14 +166,6 @@ class Hider(Entity):
         else:
             return False
 
-    def brain():
-        # TODO move randomly to position [row][col]
-        #      [ ][ ][ ]
-        #      [ ][H][ ]
-        #      [ ][ ][ ]
-        # Move in any of the empty  places
-        pass
-
 class Seeker(Entity):
     def __init__(self, sprite_path):
         self.row = 1
@@ -164,9 +175,17 @@ class Seeker(Entity):
         self.image = pygame.image.load(sprite_path)
         self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
 
-    def brain():
-        # TODO DFS/BFS periodically to seeker hinted position, meanwhile random just like Hider
-        pass
+    """
+    Apply DFS or BFS from (seeker.row, seeker.col) to (hider.row, seeker.col)
+
+    You need to update seeker path to a list of coordinates (row, col) that the seeker will follow until new instructions.
+
+    Note: Primul (row, col) din lista returnata de BFS trebuie sa fie setul de coordonate imediat urmatorul pe care seekerul il va urma catre hider
+    Return: nothing
+    """
+    def advanced_brain(self, grid):
+        # seeker_path =  # TODO fa DFS sau BFS ca sa obtii noua cale si actualizeaza seeker_path
+        pass  # TODO sterge asta dupa ce ai facut todo-ul de mai sus
 
 grid = Grid()
 hider = Hider('assets/sprites/hider.png')
@@ -192,27 +211,29 @@ while True:
             pygame.quit()
             sys.exit()
         elif event.type == MOVE_PLAYERS:
-            # TODO move hider on screen
+            # move hider on screen
+            grid = hider.basic_brain(grid)
 
             # move seeker on screen
             if not seeker_path or len(seeker_path) == 0 or seeker_path_index > len(seeker_path):
-                # TODO seeker has no data on where the hider is, move randomly
-                print('reset')
-                # seeker_path_index = 0  # this one is for debug only
+                grid = seeker.basic_brain(grid)
+                print('wandering')
 
             grid = seeker.move_to(seeker_path[seeker_path_index][0], seeker_path[seeker_path_index][1], grid)
             seeker_path_index += 1
 
             # update screen
             grid.draw_self(screen)
+
             # check for end game condition
             if hider.check_for_seeker(grid) == True:
-                print('Game Over')
+                print('Game Over. You loose!')
             else:
                 print('continuing...')
 
         elif event.type == HUNT_HIDER:
-            # TODO run seeker bfs on the hider current position and return a list of cells to follow to the hider
+            # get new path to follow to the hider's last known location
+            seeker.advanced_brain(grid)
             seeker_path_index = 0
             continue
 
