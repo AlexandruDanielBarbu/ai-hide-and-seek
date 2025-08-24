@@ -1,17 +1,23 @@
 # Imports
 import sys, pygame
+import random, time
 
 # Inits
 pygame.init()
 
 # Global variables
-GRID_SIZE = 11
+GRID_SIZE = 12
 
-SCSREEN_WIDTH = 700
-SCSREEN_HEIGHT = 700
+TILE_SIZE = 70
+TILE_PADDING = 5
+
+SCSREEN_WIDTH = GRID_SIZE * (2 * TILE_PADDING + TILE_SIZE)
+SCSREEN_HEIGHT = GRID_SIZE * (2 * TILE_PADDING + TILE_SIZE)
 SCREEN_SIZE = (SCSREEN_WIDTH, SCSREEN_HEIGHT)
 
 FPS_VALUE = 60
+
+DARK_GREEN = (35, 74, 16)
 
 # Initial setup
 screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -25,7 +31,6 @@ fps = pygame.time.Clock()
 # Classes
 class Grid():
     def __init__(self):
-        global GRID_SIZE
         self.grid = [['B' if i == 0 or j == 0 or i == GRID_SIZE - 1 or j == GRID_SIZE - 1 else ' ' for i in range(0,GRID_SIZE)] for j in range(0, GRID_SIZE)]
 
     def print(self):
@@ -34,6 +39,18 @@ class Grid():
 
     def set_cell(self, row, col, symbol):
         self.grid[row][col] = symbol
+
+    def draw_self(self, screen):
+        for row in range(1, GRID_SIZE - 1):
+            for col in range(1, GRID_SIZE - 1):
+                if self.grid[row][col] == 'H':
+                    screen.blit(hider.image, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING))
+                elif self.grid[row][col] == 'S':
+                    screen.blit(seeker.image, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING))
+                elif self.grid[row][col] == 'W':
+                    continue
+                else:
+                    pygame.draw.rect(screen, DARK_GREEN, (row * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, col * (TILE_PADDING + TILE_SIZE + TILE_PADDING) + TILE_PADDING, TILE_SIZE, TILE_SIZE))
 
 class Entity():
     def __init__(self, row, col, symbol):
@@ -63,11 +80,14 @@ class Entity():
         return grid
 
 class Hider(Entity):
-    def __init__(self):
+    def __init__(self, sprite_path):
         # Hider position
         self.row = 1
         self.col = 1
         self.symbol = 'H'
+
+        self.image = pygame.image.load(sprite_path)
+        self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
 
     def check_for_seeker(self, grid):
         # Check the up, down, left , right and the corners for the seeker
@@ -92,18 +112,21 @@ class Hider(Entity):
         pass
 
 class Seeker(Entity):
-    def __init__(self):
+    def __init__(self, sprite_path):
         self.row = GRID_SIZE - 2
         self.col = GRID_SIZE - 2
         self.symbol = 'S'
+
+        self.image = pygame.image.load(sprite_path)
+        self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
 
     def brain():
         # TODO DFS/BFS periodically to seeker hinted position, meanwhile random just like Hider
         pass
 
 grid = Grid()
-hider = Hider()
-seeker = Seeker()
+hider = Hider('assets/sprites/hider.png')
+seeker = Seeker('assets/sprites/seeker.png')
 
 # Place Hider and Seeker on the map
 grid.set_cell(hider.row, hider.col, hider.symbol)
@@ -119,6 +142,16 @@ while True:
             sys.exit()
 
     screen.blit(background, (0, 0))
+
+    # draw grid
+    grid.draw_self(screen)
+
+    # wait
+    time.sleep(2)
+
+    # move hider
+    grid = hider.move_to(2, 2, grid)
+
     pygame.display.update()
     fps.tick(FPS_VALUE)
 
