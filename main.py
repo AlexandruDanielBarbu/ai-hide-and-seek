@@ -28,6 +28,31 @@ pygame.display.set_icon(game_icon)
 
 fps = pygame.time.Clock()
 
+seeker_path = [
+    (1, 1),
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (2, 4),
+    (2, 3),
+    (3, 3),
+    (4, 3),
+    (4, 2)
+]
+
+seeker_path_index = 0
+
+# Events
+SECOND = 1000
+MOVE_PLAYERS = pygame.USEREVENT + 1
+pygame.time.set_timer(MOVE_PLAYERS, 1 * SECOND)
+
+HUNT_HIDER = pygame.USEREVENT + 2
+pygame.time.set_timer(HUNT_HIDER, 7 * SECOND)
+
+GAME_TIME = pygame.USEREVENT + 3
+pygame.time.set_timer(GAME_TIME, 15 * SECOND)
+
 # Classes
 class Grid():
     def __init__(self):
@@ -82,8 +107,8 @@ class Entity():
 class Hider(Entity):
     def __init__(self, sprite_path):
         # Hider position
-        self.row = 1
-        self.col = 1
+        self.row = 3
+        self.col = 4
         self.symbol = 'H'
 
         self.image = pygame.image.load(sprite_path)
@@ -136,26 +161,52 @@ background = pygame.image.load('assets/sprites/background.png')
 background = pygame.transform.scale(background, SCREEN_SIZE)
 
 while True:
+    # Render background
+    screen.blit(background, (0, 0))
+
+    # handle game events
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()
             sys.exit()
+        elif event.type == MOVE_PLAYERS:
+            # TODO move hider on screen
 
-    screen.blit(background, (0, 0))
+            # move seeker on screen
+            if not seeker_path or len(seeker_path) == 0 or seeker_path_index > len(seeker_path):
+                # TODO seeker has no data on where the hider is, move randomly
+                print('reset')
+                # seeker_path_index = 0  # this one is for debug only
+
+            # For some reason i have to invert the coordinates, I don't know why
+            grid = seeker.move_to(seeker_path[seeker_path_index][1], seeker_path[seeker_path_index][0], grid)
+            seeker_path_index += 1
+
+            # update screen
+            grid.draw_self(screen)
+
+            # check for end game condition
+            if hider.check_for_seeker(grid) == True:
+                print('Game Over')
+            else:
+                print('continuing...')
+
+        elif event.type == HUNT_HIDER:
+            # TODO run seeker bfs on the hider current position and return a list of cells to follow to the hider
+            seeker_path_index = 0
+            continue
+
+        elif event.type == GAME_TIME:
+            if hider.check_for_seeker(grid) == True:
+                print('Game Over. You loose!')
+            else:
+                print('Game Over. You win! :)))')
 
     # draw grid
     grid.draw_self(screen)
 
-    # wait
-    time.sleep(2)
-
     # move hider
-    grid = hider.move_to(2, 2, grid)
+    # grid = hider.move_to(2, 2, grid)
 
     pygame.display.update()
     fps.tick(FPS_VALUE)
-
-# TODOs:
-
-# TODO I need a way to move both hider and seeker to coordinates [row][col] once every 1 second or so
-# TODO make the UI of my game
