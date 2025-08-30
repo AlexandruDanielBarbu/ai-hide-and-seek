@@ -1,0 +1,17 @@
+# Global variables
+GRID_SIZE = 12
+
+# Tile settings
+TILE_SIZE = 70
+TILE_PADDING = 5
+
+# Screen settings
+SCSREEN_WIDTH = GRID_SIZE * (2 * TILE_PADDING + TILE_SIZE)
+SCSREEN_HEIGHT = GRID_SIZE * (2 * TILE_PADDING + TILE_SIZE)
+SCREEN_SIZE = (SCSREEN_WIDTH, SCSREEN_HEIGHT)
+
+# Fps value
+FPS_VALUE = 60
+
+# Colors 
+DARK_GREEN = (35, 74, 16)
