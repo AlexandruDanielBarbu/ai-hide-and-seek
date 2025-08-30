@@ -65,11 +65,13 @@ def run_game():
                 if hider.check_for_seeker(grid):
                     reward = 5
                     print('Found YOU')
+                    next_state = seeker.q_agent.get_state(hider, seeker)
+                    seeker.q_agent.update(state, action, reward, next_state)
                     q_agent.save_table('q_table.pkl')
                     return
-                elif grid.grid[seeker.row][seeker.col] == 'W':
-                    print('BAD')
-                    reward = -2
+                # elif grid.grid[seeker.row][seeker.col] == 'W':
+                #     print('BAD')
+                #     reward = -2
                 else:
                     reward = 0
                 
