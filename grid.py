@@ -15,7 +15,7 @@ wall_list = [
     (10, 2), (10, 6)
 ]
 
-# Class fior grid
+# Class for grid
 class Grid():
     def __init__(self):
         self.grid = [['B' if i == 0 or j == 0 or i == GRID_SIZE - 1 or j == GRID_SIZE - 1 else ' ' for i in range(0,GRID_SIZE)] for j in range(0, GRID_SIZE)]
