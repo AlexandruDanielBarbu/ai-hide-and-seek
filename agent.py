@@ -8,11 +8,19 @@ class QAgent:
     def __init__(self, actions):
         self.q_table = self.load_table('q_table.pkl')
         self.actions = actions 
+<<<<<<< HEAD
         self.alpha = 0.8 # learning rate
         self.gamma = 0.95 # discount fact
         self.temperature = 1.5 # softmax temp
 
     def get_state(self, hider, seeker):
+=======
+        self.alpha = 0.4 # learning rate
+        self.gamma = 0.95 # discount fact
+        self.temperature = 1.5 # softmax temp
+
+    def get_state(self, seeker):
+>>>>>>> Bob
         return (seeker.row, seeker.col)
     
     def choose_action(self, state, temperature=None):
@@ -40,6 +48,10 @@ class QAgent:
 
         best_next = max(self.q_table[next_state])
         old_value = self.q_table[state][action]
+<<<<<<< HEAD
+=======
+
+>>>>>>> Bob
         target = reward if done else (reward + self.gamma * best_next)
         self.q_table[state][action] = old_value + self.alpha * (target - old_value)
 

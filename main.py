@@ -4,7 +4,11 @@ import random, time
 from grid import Grid
 from entities import Hider, Seeker
 from settings import SCREEN_SIZE, TILE_SIZE, FPS_VALUE, GOAL_REWARDS, LOOP_PENALTY
+<<<<<<< HEAD
 from settings import LAMBDA, HIDER_LOCATIONS, STEP_COST, BETA, REVISIT_PENALTY, WALL_PENALTY
+=======
+from settings import LAMBDA, STEP_COST, BETA, REVISIT_PENALTY, WALL_PENALTY
+>>>>>>> Bob
 from agent import QAgent
 
 def manhattan(a, b): return abs(a[0]-b[0]) + abs(a[1]-b[1])
@@ -30,7 +34,11 @@ def run_game():
     # Events
     SECOND = 1000
     MOVE_PLAYERS = pygame.USEREVENT + 1
+<<<<<<< HEAD
     pygame.time.set_timer(MOVE_PLAYERS, int(0.001 * SECOND))
+=======
+    pygame.time.set_timer(MOVE_PLAYERS, int(0.015 * SECOND))
+>>>>>>> Bob
 
 
     actions = [0, 1, 2, 3]  # up, down, left, right
@@ -79,6 +87,7 @@ def run_game():
                 env_reward = STEP_COST
                 done = False
 
+<<<<<<< HEAD
                 if (next_state == state) and grid.grid[next_state[0]][next_state[1]] == 'W':
                     env_reward += WALL_PENALTY
 
@@ -115,6 +124,46 @@ def run_game():
         # draw grid
         grid.draw_self(screen, hider, seeker, crate)
 
+=======
+                # walls penalty
+                if (next_state == state) and grid.grid[next_state[0]][next_state[1]] == 'W':
+                    env_reward += WALL_PENALTY
+
+                # check for victory
+                if next_state in GOALS or hider.check_for_seeker(grid):
+                    env_reward = GOAL_REWARDS.get(next_state, 1.0)
+                    done = True
+
+                # revisit penalty
+                if next_state in visited_states:
+                    env_reward += REVISIT_PENALTY
+
+                # short loop penalty
+                if next_state == last_state:
+                    env_reward += LOOP_PENALTY
+
+                visited_states.add(next_state)
+                last_state = state
+                
+                # potential-based shaping
+                shaped = env_reward + BETA * (q_agent.gamma * phi(next_state, GOALS) - phi(state, GOALS))
+                seeker.q_agent.update(state, action, shaped, next_state, done)
+
+                steps += 1
+                if done or steps >= max_steps:
+                    print(f"Episode finished in {steps} steps, reward={env_reward:.2f}")
+                    q_agent.save_table('q_table.pkl')
+                    q_agent.decay_temperature()
+                    return
+
+                # update screen 
+                grid.draw_self(screen, hider, seeker, crate)
+
+
+        # draw grid
+        grid.draw_self(screen, hider, seeker, crate)
+
+>>>>>>> Bob
         pygame.display.update()
         fps.tick(FPS_VALUE)
 
