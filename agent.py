@@ -43,7 +43,7 @@ class QAgent:
         target = reward if done else (reward + self.gamma * best_next)
         self.q_table[state][action] = old_value + self.alpha * (target - old_value)
 
-    def decay_temperature(self, min_T=0.2, rate=0.95):
+    def decay_temperature(self, min_T=0.4, rate=0.925):
         self.temperature = max(min_T, self.temperature * rate)
 
 

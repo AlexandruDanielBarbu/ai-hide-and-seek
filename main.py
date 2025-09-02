@@ -3,7 +3,7 @@ import sys, pygame
 import random, time
 from grid import Grid
 from entities import Hider, Seeker
-from settings import SCREEN_SIZE, TILE_SIZE, FPS_VALUE, GOAL_REWARDS
+from settings import SCREEN_SIZE, TILE_SIZE, FPS_VALUE, GOAL_REWARDS, LOOP_PENALTY
 from settings import LAMBDA, HIDER_LOCATIONS, STEP_COST, BETA, REVISIT_PENALTY, WALL_PENALTY
 from agent import QAgent
 
@@ -56,6 +56,7 @@ def run_game():
     visited_states = set()
     steps = 0
     max_steps = 500
+    last_state = None
 
     # Game loop
     while True:
@@ -89,7 +90,11 @@ def run_game():
                 if next_state in visited_states:
                     env_reward += REVISIT_PENALTY
 
+                if next_state == last_state:
+                    env_reward += LOOP_PENALTY
+
                 visited_states.add(next_state)
+                last_state = state
                 
                 # potential-based shaping
                 shaped = env_reward + BETA * (q_agent.gamma * phi(next_state, GOALS) - phi(state, GOALS))
