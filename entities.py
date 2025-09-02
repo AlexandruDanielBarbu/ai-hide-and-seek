@@ -66,23 +66,21 @@ class Seeker(Entity):
         self.q_agent = q_agent
 
     def advanced_brain(self, grid, hider):
-        state = self.q_agent.get_state(hider, self)
+        state = self.q_agent.get_state(self)
         action = self.q_agent.choose_action(state)
 
         moves = [(-1,0), (1,0), (0,-1), (0,1)]
         new_row = self.row + moves[action][0]
         new_col = self.col + moves[action][1]
 
-        tries = 0
-        while grid.grid[new_row][new_col] == 'B' and tries < 8:
+        while grid.grid[new_row][new_col] == 'B':
             action = self.q_agent.choose_action(state)
             new_row = self.row + moves[action][0]
             new_col = self.col + moves[action][1]
-            tries += 1
 
 
         grid = self.move_to(new_row, new_col, grid)
-        next_state = self.q_agent.get_state(hider, self)
+        next_state = self.q_agent.get_state( self)
 
         return grid, action, state, next_state
 
