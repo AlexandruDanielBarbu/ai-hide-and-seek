@@ -15,3 +15,19 @@ FPS_VALUE = 60
 
 # Colors 
 DARK_GREEN = (35, 74, 16)
+
+
+# --- REWARD SHAPING ---
+STEP_COST = -0.05
+REVISIT_PENALTY = -0.07
+WALL_PENALTY = -0.05
+LAMBDA = 1.0
+BETA = 1.8
+
+HIDER_LOCATIONS = [
+    (1, 7),
+    (8, 2),
+    (9, 9),
+]
+
+GOAL_REWARDS = {pos: 10.0 for pos in HIDER_LOCATIONS}
